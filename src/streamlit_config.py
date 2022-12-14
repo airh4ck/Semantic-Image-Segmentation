@@ -1,6 +1,9 @@
 import streamlit as st
-import segmentation
 from PIL import Image
+import re
+from io import BytesIO
+
+import segmentation
 
 
 def init():
@@ -9,6 +12,7 @@ def init():
     st.session_state["feature_extractor"] = segmentation.create_feature_extractor()
 
 
+@st.experimental_memo(show_spinner=False)
 def process_file(file):
     return segmentation.segment(
         Image.open(file),
@@ -24,6 +28,15 @@ def get_uploaded_file():
     )
 
 
+def download_button(file, name, format):
+    st.download_button(
+        label="Download processed image",
+        data=file,
+        file_name=name,
+        mime="image/" + format
+    )
+
+
 def run():
     st.title("Semantic image segmentation")
     st.subheader("Upload your image and get an image with segmentation")
@@ -32,10 +45,22 @@ def run():
     if not file:
         return
 
-    placeholder: st.delta_generator.DeltaGenerator = st.empty()
+    placeholder = st.empty()
     placeholder.info(
         "Processing..."
     )
 
+    image = process_file(file)
     placeholder.empty()
-    placeholder.image(process_file(file))
+    placeholder.image(image)
+
+    filename = file.name
+    format = re.findall("\..*$", filename)[0][1:]
+
+    image = Image.fromarray(image)
+
+    buf = BytesIO()
+    image.save(buf, format="JPEG")
+    byte_image = buf.getvalue()
+
+    download_button(byte_image, filename, format)
