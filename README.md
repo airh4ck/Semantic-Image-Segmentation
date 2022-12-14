@@ -1,3 +1,5 @@
-# Домашнее задание по практикуму на ЭВМ
+# Semantic Image Segmentation
 
-Это репозиторий для домашки по практикуму на ЭВМ.
+A simple streamlit application for semantic image segmentation.
+
+Application demo: https://huggingface.co/spaces/zenes/SemanticImageSegmentation
